@@ -1,5 +1,20 @@
-#include "main.h"
+#include "database.h"
+#include "utils.h"
+
 using namespace std;
+
+// q1
+string FindZoneId(Table<Zonecost>& zonecost, string target);
+vector<string> FilterCustomerWithZoneAndActive(Table<Customer>& customer, string zone_id);
+
+//q2
+vector<string> FilterProductsWithSold(Table<Lineitem>& lineitem, Table<Product>& products);
+
+void usage() {
+    cout << "usage: "  << endl;
+    cout << "  <your_binary> q1 <customer.file> <zonecost.file>"  << endl;
+    cout << "  <your_binary> q2 <lineitem.file> <products.file>"  << endl;
+}
 
 int main(int argc, char * argv[]) {
     if (argc != 4) {
@@ -11,19 +26,27 @@ int main(int argc, char * argv[]) {
     char* filename_2 = argv[3];
 
     if (query.compare("q1") == 0) {
-        vector<record> customer = ReadFile(filename_1);
-        vector<record> zonecost = ReadFile(filename_2);
+        vector<string> customer_file = ReadFile(filename_1);
+        vector<string> zonecost_file = ReadFile(filename_2);
+
+        Table<Customer> customer = new Table<Customer>(customer_file);
+        Table<Zonecost> zonecost = new Table<Zonecost>(zonecost_file);
+
         string zone_id = FindZoneId(zonecost, "Toronto");
         vector<string> result = FilterCustomerWithZoneAndActive(customer, zone_id);
-        for (std::vector<record>::iterator itr = result.begin(); itr != result.end(); ++itr) {
+        for (std::vector<string>::iterator itr = result.begin(); itr != result.end(); ++itr) {
             cout << *itr << endl;
         }
     }
     else if (query.compare("q2") == 0 ) {
-        vector<record> lineitem = ReadFile(filename_1);
-        vector<record> products = ReadFile(filename_2);
+        vector<string> lineitem_file = ReadFile(filename_1);
+        vector<string> products_file = ReadFile(filename_2);
+
+        Table<Lineitem> lineitem = new Table<Lineitem>(lineitem_file);
+        Table<Product> products = new Table<Product>(products_file);
+
         vector<string> result = FilterProductsWithSold(lineitem, products);
-        for (std::vector<record>::iterator itr = result.begin(); itr != result.end(); ++itr) {
+        for (std::vector<string>::iterator itr = result.begin(); itr != result.end(); ++itr) {
             cout << *itr << endl;
         }
     }
@@ -34,39 +57,13 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 
-void usage() {
-    cout << "usage: "  << endl;
-    cout << "  <your_binary> q1 <customer.file> <zonecost.file>"  << endl;
-    cout << "  <your_binary> q2 <lineitem.file> <products.file>"  << endl;
-}
+//===========================================
 
-string trim(const string& s) {
-    int i = s.find_last_not_of(" \t\r\n");
-    return i == string::npos ? s : s.substr(0, i + 1);
-}
-
-vector<record> ReadFile(char * filename) {
-    vector<record> result;
-    ifstream rf(filename);
-    if(rf.is_open() ) {
-        string line;
-        //skip 2 lines
-        getline(rf, line);
-        getline(rf, line);
-
-        while(getline(rf, line)) {
-            result.push_back(line);
-        }
-        rf.close();
-    }
-    return result;
-}
-
-string FindZoneId(const vector<record> zonecost, string target) {
-    for (std::vector<record>::const_iterator itr = zonecost.begin(); itr != zonecost.end(); ++itr) {
-        string desc = trim(GetDescFromZonecost(*itr));
+string FindZoneId(Table<Zonecost>& zonecost, string target) {
+    for (std::vector<Zonecost>::const_iterator itr = zonecost.data.begin(); itr != zonecost.data.end(); ++itr) {
+        string desc = (*itr).ZONEDESC;
         if (desc.compare(target) == 0) {
-            return trim(GetIdFromZonecost(*itr));
+            return (*itr).ZONEID;
         }
     }
     // no target record in zonecost.
@@ -74,51 +71,31 @@ string FindZoneId(const vector<record> zonecost, string target) {
     return "XXXXXX";
 }
 
-vector<string> FilterCustomerWithZoneAndActive(const vector<record> customer, string zone_id) {
+vector<string> FilterCustomerWithZoneAndActive(Table<Customer>& customer, string zone_id) {
     vector<string> result;
-    for (std::vector<record>::const_iterator itr = customer.begin(); itr != customer.end(); ++itr) {
-        string zone = trim(GetZoneFromCustomer(*itr));
-        string active = trim(GetActiveFromCustomer(*itr));
+    for (std::vector<Customer>::const_iterator itr = customer.data.begin(); itr != customer.data.end(); ++itr) {
+        string zone = (*itr).ZONE;
+        string active = (*itr).ACTIVE;
 
         if(zone.compare(zone_id) == 0 && active.compare("1") == 0) {
-            string lname = trim(GetLnameFromCustomer(*itr));
+            string lname = (*itr).LNAME;
             result.push_back(lname);
         }
     }
     return result;
 }
 
-string GetLnameFromCustomer(record item) {
-    return item.substr(42, 20);
-}
-
-string GetZoneFromCustomer(record item) {
-    return item.substr(135, 6);
-}
-
-string GetActiveFromCustomer(record item) {
-    return item.substr(243, 6);
-}
-
-string GetIdFromZonecost(record item) {
-    return item.substr(0, 6);
-}
-
-string GetDescFromZonecost(record item) {
-    return item.substr(7, 20);
-}
-
-vector<string> FilterProductsWithSold(const vector<record> lineitem, const vector<record> products) {
+vector<string> FilterProductsWithSold(Table<Lineitem>& lineitem, Table<Product>& products) {
     vector<string> result;
-    for (std::vector<record>::const_iterator itr = products.begin(); itr != products.end(); ++itr) {
-        string barcode = trim(GetBarcodeFromProducts(*itr));
+    for (std::vector<Product>::const_iterator itr = products.data.begin(); itr != products.data.end(); ++itr) {
+        string barcode = (*itr).BARCODE;
 
         int customer_cnt = 0;
         string name = "";
-        for (std::vector<record>::const_iterator line_itr = lineitem.begin(); line_itr != lineitem.end(); ++line_itr) {
-            string line_barcode = trim(GetBarcodeFromLineitem(*line_itr));
+        for (std::vector<Lineitem>::const_iterator line_itr = lineitem.data.begin(); line_itr != lineitem.data.end(); ++line_itr) {
+            string line_barcode = (*line_itr).BARCODE;
             if (line_barcode.compare(barcode) == 0) {
-                string new_name = trim(GetUnameFromLineitem(*line_itr));
+                string new_name = (*line_itr).UNAME;
                 if (customer_cnt == 0) {
                     customer_cnt++;
                     name = new_name;
@@ -133,27 +110,10 @@ vector<string> FilterProductsWithSold(const vector<record> lineitem, const vecto
         }
 
         if (customer_cnt == 2) {
-            string barcode = GetBarcodeFromProducts(*itr);
-            string desc = GetDescFromProducts(*itr);
-            result.push_back(barcode + desc);
+            string desc = (*itr).PRODDESC;
+            result.push_back(barcode + "    " + desc);
         }
     }
     return result;
-}
-
-string GetUnameFromLineitem(record item) {
-    return item.substr(0, 20);
-}
-
-string GetBarcodeFromLineitem(record item) {
-    return item.substr(41, 20);
-}
-
-string GetBarcodeFromProducts(record item) {
-    return item.substr(0, 20);
-}
-
-string GetDescFromProducts(record item) {
-    return item.substr(32, 50);
 }
 
