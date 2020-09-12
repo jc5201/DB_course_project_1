@@ -108,11 +108,52 @@ string GetDescFromZonecost(record item) {
     return item.substr(7, 20);
 }
 
-vector<string> FilterProductsWithSold(const vector<record> lineitem, const vector<record> products) {}
+vector<string> FilterProductsWithSold(const vector<record> lineitem, const vector<record> products) {
+    vector<string> result;
+    for (std::vector<record>::const_iterator itr = products.begin(); itr != products.end(); ++itr) {
+        string barcode = trim(GetBarcodeFromProducts(*itr));
 
-string GetUnameFromLineitem(record item) {}
-string GetBarcodeFromLineitem(record item) {}
+        int customer_cnt = 0;
+        string name = "";
+        for (std::vector<record>::const_iterator line_itr = lineitem.begin(); line_itr != lineitem.end(); ++line_itr) {
+            string line_barcode = trim(GetBarcodeFromLineitem(*line_itr));
+            if (line_barcode.compare(barcode) == 0) {
+                string new_name = trim(GetUnameFromLineitem(*line_itr));
+                if (customer_cnt == 0) {
+                    customer_cnt++;
+                    name = new_name;
+                }
+                else {
+                    if (name.compare(new_name) != 0) {
+                        customer_cnt++;
+                        break;
+                    }
+                }
+            }
+        }
 
-string GetBarcodeFromProducts(record item) {}
-string GetDescFromProducts(record item) {}
+        if (customer_cnt == 2) {
+            string barcode = GetBarcodeFromProducts(*itr);
+            string desc = GetDescFromProducts(*itr);
+            result.push_back(barcode + desc);
+        }
+    }
+    return result;
+}
+
+string GetUnameFromLineitem(record item) {
+    return item.substr(0, 20);
+}
+
+string GetBarcodeFromLineitem(record item) {
+    return item.substr(41, 20);
+}
+
+string GetBarcodeFromProducts(record item) {
+    return item.substr(0, 20);
+}
+
+string GetDescFromProducts(record item) {
+    return item.substr(32, 50);
+}
 
