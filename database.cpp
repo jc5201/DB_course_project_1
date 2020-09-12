@@ -1,9 +1,5 @@
-Table::Table(vector<string>& records) {
-	for (std::vector<string>::iterator itr = records.begin(); itr != records.end(); ++itr) {
-	    string line = trim(GetDescFromZonecost(*itr));
-	    data.push_back(T(line));
-	}
-}
+#include "database.h"
+using namespace std;
 
 string Customer::GetLnameFromCustomer(string item) {
     return item.substr(42, 20);
@@ -17,26 +13,26 @@ string Customer::GetActiveFromCustomer(string item) {
     return item.substr(243, 6);
 }
 
-string Zonecost::GetIdFromZonecost(record item) {
+string Zonecost::GetIdFromZonecost(string item) {
     return item.substr(0, 6);
 }
 
-string Zonecost::GetDescFromZonecost(record item) {
+string Zonecost::GetDescFromZonecost(string item) {
     return item.substr(7, 20);
 }
 
-string GetUnameFromLineitem(record item) {
+string Lineitem::GetUnameFromLineitem(string item) {
     return item.substr(0, 20);
 }
 
-string GetBarcodeFromLineitem(record item) {
+string Lineitem::GetBarcodeFromLineitem(string item) {
     return item.substr(41, 20);
 }
 
-string GetBarcodeFromProducts(record item) {
+string Product::GetBarcodeFromProducts(string item) {
     return item.substr(0, 20);
 }
 
-string GetDescFromProducts(record item) {
+string Product::GetDescFromProducts(string item) {
     return item.substr(32, 50);
 }

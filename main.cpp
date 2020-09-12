@@ -29,8 +29,8 @@ int main(int argc, char * argv[]) {
         vector<string> customer_file = ReadFile(filename_1);
         vector<string> zonecost_file = ReadFile(filename_2);
 
-        Table<Customer> customer = new Table<Customer>(customer_file);
-        Table<Zonecost> zonecost = new Table<Zonecost>(zonecost_file);
+        Table<Customer> customer = Table<Customer>(customer_file);
+        Table<Zonecost> zonecost = Table<Zonecost>(zonecost_file);
 
         string zone_id = FindZoneId(zonecost, "Toronto");
         vector<string> result = FilterCustomerWithZoneAndActive(customer, zone_id);
@@ -42,8 +42,8 @@ int main(int argc, char * argv[]) {
         vector<string> lineitem_file = ReadFile(filename_1);
         vector<string> products_file = ReadFile(filename_2);
 
-        Table<Lineitem> lineitem = new Table<Lineitem>(lineitem_file);
-        Table<Product> products = new Table<Product>(products_file);
+        Table<Lineitem> lineitem = Table<Lineitem>(lineitem_file);
+        Table<Product> products = Table<Product>(products_file);
 
         vector<string> result = FilterProductsWithSold(lineitem, products);
         for (std::vector<string>::iterator itr = result.begin(); itr != result.end(); ++itr) {

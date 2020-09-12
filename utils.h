@@ -5,9 +5,7 @@
 #include<vector>
 #include<string>
 
-using namespace std;
-
-vector<string> ReadFile(char * filename);
-string trim(const string& str);
+std::vector<std::string> ReadFile(char * filename);
+std::string trim(const std::string& str);
 
 #endif 

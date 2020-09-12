@@ -9,14 +9,18 @@
 
 using namespace std;
 
-typedef string record;
-
 template <typename T>
 class Table {
+public:
 	vector<T> data;
 
-	Table(vector<string>& records);
-}
+	Table(vector<string>& records) {
+    for (std::vector<string>::iterator itr = records.begin(); itr != records.end(); ++itr) {
+      string line = (*itr);
+      data.push_back(T(line));
+    }
+  }
+};
 
 class Customer {
 public:
@@ -34,14 +38,14 @@ private :
 	string GetLnameFromCustomer(string item);
 	string GetZoneFromCustomer(string item);
 	string GetActiveFromCustomer(string item);
-}
+};
 
 class Zonecost {
 public:
 	string ZONEID;
 	string ZONEDESC;
 
-	Customer(string record) {
+	Zonecost(string record) {
 		ZONEID = trim(GetIdFromZonecost(record));
 		ZONEDESC = trim(GetDescFromZonecost(record));
 	}
@@ -49,14 +53,14 @@ public:
 private : 
 	string GetIdFromZonecost(string item);
 	string GetDescFromZonecost(string item);
-}
+};
 
 class Lineitem {
 public:
 	string UNAME;
 	string BARCODE;
 
-	Customer(string record) {
+	Lineitem(string record) {
 		UNAME = trim(GetUnameFromLineitem(record));
 		BARCODE = trim(GetBarcodeFromLineitem(record));
 	}
@@ -64,14 +68,14 @@ public:
 private : 
 	string GetUnameFromLineitem(string item);
 	string GetBarcodeFromLineitem(string item);
-}
+};
 
 class Product {
 public:
 	string BARCODE;
 	string PRODDESC;
 
-	Customer(string record) {
+	Product(string record) {
 		BARCODE = trim(GetBarcodeFromProducts(record));
 		PRODDESC = trim(GetDescFromProducts(record));
 	}
@@ -79,6 +83,6 @@ public:
 private : 
 	string GetBarcodeFromProducts(string item);
 	string GetDescFromProducts(string item);
-}
+};
 
 #endif 
