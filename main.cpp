@@ -1,3 +1,4 @@
+#include "main.h"
 using namespace std;
 
 int main(int argc, char * argv[]) {
@@ -6,21 +7,25 @@ int main(int argc, char * argv[]) {
         return 1;
     }
     string query = argv[1];
-    string filename_1 = argv[2];
-    string filename_2 = argv[3];
+    char* filename_1 = argv[2];
+    char* filename_2 = argv[3];
 
     if (query.compare("q1") == 0) {
         vector<record> customer = ReadFile(filename_1);
         vector<record> zonecost = ReadFile(filename_2);
-        int zone_id = FindZoneId(zonecost, "Toronto");
-        vector<string> result = FilterZoneAndActive(customer, zone_id);
-        cout << result << endl;
+        string zone_id = FindZoneId(zonecost, "Toronto");
+        vector<string> result = FilterCustomerWithZoneAndActive(customer, zone_id);
+        for (std::vector<record>::iterator itr = result.begin(); itr != result.end(); ++itr) {
+            cout << *itr << endl;
+        }
     }
     else if (query.compare("q2") == 0 ) {
         vector<record> lineitem = ReadFile(filename_1);
         vector<record> products = ReadFile(filename_2);
-        vector<string> result FilterProductsWithSold(lineitem, products);
-        cout << result << endl;
+        vector<string> result = FilterProductsWithSold(lineitem, products);
+        for (std::vector<record>::iterator itr = result.begin(); itr != result.end(); ++itr) {
+            cout << *itr << endl;
+        }
     }
     else {
         usage();
@@ -41,12 +46,14 @@ string trim(const string& s) {
 }
 
 vector<record> ReadFile(char * filename) {
-    vector<recore> result;
+    vector<record> result;
     ifstream rf(filename);
     if(rf.is_open() ) {
         string line;
+        //skip 2 lines
         getline(rf, line);
         getline(rf, line);
+
         while(getline(rf, line)) {
             result.push_back(line);
         }
@@ -56,7 +63,7 @@ vector<record> ReadFile(char * filename) {
 }
 
 string FindZoneId(const vector<record> zonecost, string target) {
-    for (std::vector<record>::iterator itr = zonecost.begin(); itr != zonecost.end(); ++itr) {
+    for (std::vector<record>::const_iterator itr = zonecost.begin(); itr != zonecost.end(); ++itr) {
         string desc = trim(GetDescFromZonecost(*itr));
         if (desc.compare(target) == 0) {
             return trim(GetIdFromZonecost(*itr));
@@ -69,7 +76,7 @@ string FindZoneId(const vector<record> zonecost, string target) {
 
 vector<string> FilterCustomerWithZoneAndActive(const vector<record> customer, string zone_id) {
     vector<string> result;
-    for (std::vector<record>::iterator itr = customer.begin(); itr != customer.end(); ++itr) {
+    for (std::vector<record>::const_iterator itr = customer.begin(); itr != customer.end(); ++itr) {
         string zone = trim(GetZoneFromCustomer(*itr));
         string active = trim(GetActiveFromCustomer(*itr));
 
@@ -82,13 +89,30 @@ vector<string> FilterCustomerWithZoneAndActive(const vector<record> customer, st
 }
 
 string GetLnameFromCustomer(record item) {
-    return item.substr(42, 63);
+    return item.substr(42, 20);
 }
 
 string GetZoneFromCustomer(record item) {
-    return item.substr(135, 142);
+    return item.substr(135, 6);
 }
 
 string GetActiveFromCustomer(record item) {
-    return item.substr(243, 250);
+    return item.substr(243, 6);
 }
+
+string GetIdFromZonecost(record item) {
+    return item.substr(0, 6);
+}
+
+string GetDescFromZonecost(record item) {
+    return item.substr(7, 20);
+}
+
+vector<string> FilterProductsWithSold(const vector<record> lineitem, const vector<record> products) {}
+
+string GetUnameFromLineitem(record item) {}
+string GetBarcodeFromLineitem(record item) {}
+
+string GetBarcodeFromProducts(record item) {}
+string GetDescFromProducts(record item) {}
+

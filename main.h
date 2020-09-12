@@ -10,7 +10,7 @@ using namespace std;
 
 typedef string record;
 
-int main(int argc, char ** argv[]);
+int main(int argc, char * argv[]);
 void usage();
 vector<record> ReadFile(char * filename);
 string trim(const string& str);
@@ -35,4 +35,4 @@ string GetBarcodeFromLineitem(record item);
 string GetBarcodeFromProducts(record item);
 string GetDescFromProducts(record item);
 
-#endif MAIN_H_
+#endif 
