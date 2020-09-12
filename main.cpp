@@ -3,13 +3,6 @@
 
 using namespace std;
 
-// q1
-string FindZoneId(Table<Zonecost>& zonecost, string target);
-vector<string> FilterCustomerWithZoneAndActive(Table<Customer>& customer, string zone_id);
-
-//q2
-vector<string> FilterProductsWithSold(Table<Lineitem>& lineitem, Table<Product>& products);
-
 void usage() {
     cout << "usage: "  << endl;
     cout << "  <your_binary> q1 <customer.file> <zonecost.file>"  << endl;
@@ -29,11 +22,11 @@ int main(int argc, char * argv[]) {
         vector<string> customer_file = ReadFile(filename_1);
         vector<string> zonecost_file = ReadFile(filename_2);
 
-        Table<Customer> customer = Table<Customer>(customer_file);
-        Table<Zonecost> zonecost = Table<Zonecost>(zonecost_file);
+        CustomerTable customer = CustomerTable(customer_file);
+        ZonecostTable zonecost = ZonecostTable(zonecost_file);
 
-        string zone_id = FindZoneId(zonecost, "Toronto");
-        vector<string> result = FilterCustomerWithZoneAndActive(customer, zone_id);
+        vector<string> zone_ids = zonecost.FindZoneId("Toronto");
+        vector<string> result = customer.FilterZoneAndActive(zone_ids);
         for (std::vector<string>::iterator itr = result.begin(); itr != result.end(); ++itr) {
             cout << *itr << endl;
         }
@@ -42,10 +35,10 @@ int main(int argc, char * argv[]) {
         vector<string> lineitem_file = ReadFile(filename_1);
         vector<string> products_file = ReadFile(filename_2);
 
-        Table<Lineitem> lineitem = Table<Lineitem>(lineitem_file);
-        Table<Product> products = Table<Product>(products_file);
+        LineitemTable lineitem = LineitemTable(lineitem_file);
+        ProductTable products = ProductTable(products_file);
 
-        vector<string> result = FilterProductsWithSold(lineitem, products);
+        vector<string> result = products.FilterSoldByTwoCustomer(lineitem);
         for (std::vector<string>::iterator itr = result.begin(); itr != result.end(); ++itr) {
             cout << *itr << endl;
         }
@@ -55,65 +48,5 @@ int main(int argc, char * argv[]) {
         return 1;
     }
     return 0;
-}
-
-//===========================================
-
-string FindZoneId(Table<Zonecost>& zonecost, string target) {
-    for (std::vector<Zonecost>::const_iterator itr = zonecost.data.begin(); itr != zonecost.data.end(); ++itr) {
-        string desc = (*itr).ZONEDESC;
-        if (desc.compare(target) == 0) {
-            return (*itr).ZONEID;
-        }
-    }
-    // no target record in zonecost.
-    // return invalid zone id.
-    return "XXXXXX";
-}
-
-vector<string> FilterCustomerWithZoneAndActive(Table<Customer>& customer, string zone_id) {
-    vector<string> result;
-    for (std::vector<Customer>::const_iterator itr = customer.data.begin(); itr != customer.data.end(); ++itr) {
-        string zone = (*itr).ZONE;
-        string active = (*itr).ACTIVE;
-
-        if(zone.compare(zone_id) == 0 && active.compare("1") == 0) {
-            string lname = (*itr).LNAME;
-            result.push_back(lname);
-        }
-    }
-    return result;
-}
-
-vector<string> FilterProductsWithSold(Table<Lineitem>& lineitem, Table<Product>& products) {
-    vector<string> result;
-    for (std::vector<Product>::const_iterator itr = products.data.begin(); itr != products.data.end(); ++itr) {
-        string barcode = (*itr).BARCODE;
-
-        int customer_cnt = 0;
-        string name = "";
-        for (std::vector<Lineitem>::const_iterator line_itr = lineitem.data.begin(); line_itr != lineitem.data.end(); ++line_itr) {
-            string line_barcode = (*line_itr).BARCODE;
-            if (line_barcode.compare(barcode) == 0) {
-                string new_name = (*line_itr).UNAME;
-                if (customer_cnt == 0) {
-                    customer_cnt++;
-                    name = new_name;
-                }
-                else {
-                    if (name.compare(new_name) != 0) {
-                        customer_cnt++;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (customer_cnt == 2) {
-            string desc = (*itr).PRODDESC;
-            result.push_back(barcode + "    " + desc);
-        }
-    }
-    return result;
 }
 
