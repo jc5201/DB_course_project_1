@@ -1,7 +1,7 @@
 #include "utils.h"
 using namespace std;
 
-string trim(const string& s) {
+string Trim(const string& s) {
     int i = s.find_last_not_of(" \t\r\n");
     return i == string::npos ? s : s.substr(0, i + 1);
 }

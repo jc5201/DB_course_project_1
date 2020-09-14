@@ -30,9 +30,9 @@ public:
     string ACTIVE;
 
     Customer(string record) {
-        LNAME = trim(GetLnameFromCustomer(record));
-        ZONE = trim(GetZoneFromCustomer(record));
-        ACTIVE = trim(GetActiveFromCustomer(record));
+        LNAME = Trim(GetLnameFromCustomer(record));
+        ZONE = Trim(GetZoneFromCustomer(record));
+        ACTIVE = Trim(GetActiveFromCustomer(record));
     }
 
 private : 
@@ -47,8 +47,8 @@ public:
     string ZONEDESC;
 
     Zonecost(string record) {
-        ZONEID = trim(GetIdFromZonecost(record));
-        ZONEDESC = trim(GetDescFromZonecost(record));
+        ZONEID = Trim(GetIdFromZonecost(record));
+        ZONEDESC = Trim(GetDescFromZonecost(record));
     }
 
 private : 
@@ -62,8 +62,8 @@ public:
     string BARCODE;
 
     Lineitem(string record) {
-        UNAME = trim(GetUnameFromLineitem(record));
-        BARCODE = trim(GetBarcodeFromLineitem(record));
+        UNAME = Trim(GetUnameFromLineitem(record));
+        BARCODE = Trim(GetBarcodeFromLineitem(record));
     }
 
 private : 
@@ -77,8 +77,8 @@ public:
     string PRODDESC;
 
     Product(string record) {
-        BARCODE = trim(GetBarcodeFromProducts(record));
-        PRODDESC = trim(GetDescFromProducts(record));
+        BARCODE = Trim(GetBarcodeFromProducts(record));
+        PRODDESC = Trim(GetDescFromProducts(record));
     }
 
 private : 

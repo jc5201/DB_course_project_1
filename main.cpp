@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void usage() {
+void Usage() {
     cout << "usage: "  << endl;
     cout << "  <your_binary> q1 <customer.file> <zonecost.file>"  << endl;
     cout << "  <your_binary> q2 <lineitem.file> <products.file>"  << endl;
@@ -11,7 +11,7 @@ void usage() {
 
 int main(int argc, char * argv[]) {
     if (argc != 4) {
-        usage();
+        Usage();
         return 1;
     }
     string query = argv[1];
@@ -44,7 +44,7 @@ int main(int argc, char * argv[]) {
         }
     }
     else {
-        usage();
+        Usage();
         return 1;
     }
     return 0;

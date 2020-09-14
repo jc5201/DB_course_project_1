@@ -6,6 +6,6 @@
 #include<string>
 
 std::vector<std::string> ReadFile(char * filename);
-std::string trim(const std::string& str);
+std::string Trim(const std::string& str);
 
 #endif 
